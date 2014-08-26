@@ -15,6 +15,20 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+/** DESIGN NOTES
+ *
+ * At the moment, WikiDB is called from a RestController, that is backed by a CPU*2 event-driven threads.
+ * Since we have a massive load, ways to improve it would be:
+ * - separate the query/update load (but this would add extra problems with consistency between the two)
+ * - offload merging to a separate backend server, relinquest async event processing thread to continue processing meanwhile
+ * - cache even more aggressively, to the point of keeping a cache of DynamicBuffers in memory and simply streaming bytes directly from there
+ *
+ * - think of a way of how to handle the massive update load on a single article so that end users don't feel duped by 'others have changed the page, merge conflict' messages
+ *    - but also don't merge too heavily as it can result in looks that was not intended
+ *    - maybe prioritise users based on experience and overrule lower priority updates when overloaded?
+ *    - ..., this is quite a complex problem, with quite some human aspects as well
+ */
+
 @Component
 public class WikiDB {
     private static final Logger LOGGER = LoggerFactory.getLogger(WikiDB.class);
