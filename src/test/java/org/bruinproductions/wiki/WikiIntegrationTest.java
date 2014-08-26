@@ -23,9 +23,15 @@ public class WikiIntegrationTest {
     private final String baseURL = "http://localhost:8080";
 
     @Test
-    public void testGet() {
+    public void testSetAndGet() {
         WikiDoc document = restTemplate.getForObject(baseURL + "/wiki/Latest_plane_crash", WikiDoc.class);
-        assertThat(document.getDocument(), is(5702887));
+        assertThat(document.getDocument(), is(""));
+
+        restTemplate.put(baseURL + "/wiki/Latest_plane_crash", new WikiDoc<>("My precious", 1));
+
+        document = restTemplate.getForObject(baseURL + "/wiki/Latest_plane_crash", WikiDoc.class);
+        assertThat(document.getDocument(), is("My precious"));
+        assertThat(document.getRevision(), is(2));
     }
 
 }

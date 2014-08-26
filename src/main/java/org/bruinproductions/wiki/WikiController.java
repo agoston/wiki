@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,7 +35,7 @@ public class WikiController {
     }
 
     @RequestMapping(value = "/wiki/{documentId}", method = PUT)
-    public WikiDoc putDocument(@PathVariable String documentId, WikiDoc wikiDoc) {
+    public WikiDoc putDocument(@PathVariable String documentId, @RequestBody WikiDoc wikiDoc) {
         try {
             return wikiDB.push(documentId, wikiDoc);
         } catch (ExecutionException e) {
