@@ -26,4 +26,8 @@ public class WikiDoc<T> {
     public void setRevision(int revision) {
         this.revision = revision;
     }
+
+    public void incrementRevision() {
+        revision++;
+    }
 }

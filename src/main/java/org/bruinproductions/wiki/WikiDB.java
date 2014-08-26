@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -23,6 +25,8 @@ public class WikiDB {
 
     private final Path tempFile;
     private final LoadingCache<String, WikiDoc> documentCache;
+
+    private final Set<String> merging = new HashSet<>();
 
     public WikiDB() throws IOException {
         tempFile = Files.createTempFile("wiki", ".html");
@@ -38,20 +42,34 @@ public class WikiDB {
                 });
     }
 
-    public WikiDoc<String> pull(String documentUrl) throws ExecutionException {
+    public WikiDoc<String> pull(String documentId) throws ExecutionException {
         // emulating process & crunch
         recursiveFibonacci(34);
 
-        return documentCache.get(documentUrl);
+        return documentCache.get(documentId);
     }
 
-    WikiDoc loadDocument(String documentUrl) throws IOException {
+    public WikiDoc push(String documentId, WikiDoc wikiDoc) throws ExecutionException, IOException {
+        WikiDoc current = documentCache.get(documentId);
+        synchronized (current) {
+            if (current.getRevision() != wikiDoc.getRevision()) {
+                // TODO: [AH] implement merge strategy to try merge non-conflicting changes
+                return current;
+            }
+            wikiDoc.incrementRevision();
+            storeDocument(documentId, wikiDoc);
+            documentCache.put(documentId, wikiDoc);
+            return wikiDoc;
+        }
+    }
+
+    WikiDoc loadDocument(String documentId) throws IOException {
         // TODO: [AH] add proper versioning
         // TODO: [AH] add file store
         return new WikiDoc(new String(Files.readAllBytes(tempFile)), 1);
     }
 
-    void storeDocument(String documentUrl, WikiDoc document) throws IOException {
+    void storeDocument(String documentId, WikiDoc document) throws IOException {
         // TODO: [AH] serialize on-the-fly or keep DynamicBuffer in WikiDoc to avoid unnecessary memory allocations/copies
         Files.write(tempFile, document.getDocument().toString().getBytes());
     }
