@@ -10,10 +10,15 @@ public class WikiDB {
     private static final double PHI_NEG = (1 - SQRT_5) / 2.0;
 
     public WikiDoc<Long> pull(String documentUrl) {
-        return new WikiDoc<>(fibonacci(34));
+        return new WikiDoc<>(recursiveFibonacci(34));
+    }
+
+    private static long recursiveFibonacci(long n) {
+        if (n <= 1) return n;
+        return recursiveFibonacci(n-1) + recursiveFibonacci(n-2);
     }
 
     private static long fibonacci(int n) {
-        return (long)Math.floor((Math.pow(PHI, n) - Math.pow(PHI_NEG, n)) / SQRT_5);
+        return (long) Math.floor((Math.pow(PHI, n) - Math.pow(PHI_NEG, n)) / SQRT_5);
     }
 }
