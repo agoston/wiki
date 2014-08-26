@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.concurrent.ExecutionException;
+
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 @RestController
@@ -20,7 +22,13 @@ public class WikiController {
 
     @RequestMapping(value = "/wiki/{documentId}", method = GET)
     public WikiDoc getDocument(@PathVariable String documentId) {
-        return wikiDB.pull(documentId);
+        try {
+            return wikiDB.pull(documentId);
+        } catch (ExecutionException e) {
+            LOGGER.info("Error pulling document " + documentId, e);
+            // TODO: [AH] with document store, this should throw a 500 instead
+            throw new DocumentNotFoundException();
+        }
     }
 
     @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Unknown document")
