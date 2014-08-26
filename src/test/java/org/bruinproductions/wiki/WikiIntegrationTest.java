@@ -1,6 +1,5 @@
 package org.bruinproductions.wiki;
 
-import org.bruinproductions.wiki.WikiMain;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.IntegrationTest;
@@ -9,6 +8,9 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.client.RestTemplate;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {WikiMain.class})
@@ -21,7 +23,9 @@ public class WikiIntegrationTest {
     private final String baseURL = "http://localhost:8080";
 
     @Test
-    public void testLoad() {
+    public void testGet() {
+        WikiDoc document = restTemplate.getForObject(baseURL + "/wiki/Latest_plane_crash", WikiDoc.class);
+        assertThat(document.getDocument(), is(5702887));
     }
 
 }
